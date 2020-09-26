@@ -1,6 +1,7 @@
 package br.com.devdojo.endpoint;
 
 import br.com.devdojo.error.CustomErrorType;
+import br.com.devdojo.error.ResourceNotFoundException;
 import br.com.devdojo.model.Student;
 import br.com.devdojo.repositiry.StudentRespository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,10 +30,8 @@ public class StudentEndPoint {
 
     @GetMapping(path = "/{id}")
     public ResponseEntity<?> getStudentById(@PathVariable Long id) {
-        Optional<Student> student = studentDAO.findById(id);
-        if (student == null)
-            return new ResponseEntity<>(new CustomErrorType("Student not found"), HttpStatus.NOT_FOUND);
-        return new ResponseEntity<>(student, HttpStatus.OK);
+        verifyIfStudentExist(id);
+        return new ResponseEntity<>(studentDAO.findById(id), HttpStatus.OK);
     }
 
     @PostMapping
@@ -42,12 +41,14 @@ public class StudentEndPoint {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
+        verifyIfStudentExist(id);
         studentDAO.deleteById(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PutMapping
     public ResponseEntity<?> update(@RequestBody Student student) {
+        verifyIfStudentExist(student.getId());
         studentDAO.save(student);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -55,5 +56,10 @@ public class StudentEndPoint {
     @GetMapping("/findByName/{name}")
     public ResponseEntity<?> findStudentsByName (@PathVariable String name) {
         return new ResponseEntity<>(studentDAO.findByNameIgnoreCaseContaining(name), HttpStatus.OK);
+    }
+
+    private void verifyIfStudentExist (Long id) {
+        if (!studentDAO.existsById(id))
+            throw new ResourceNotFoundException("Student not found for ID: " + id);
     }
 }
