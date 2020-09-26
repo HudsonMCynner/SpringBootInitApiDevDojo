@@ -1,0 +1,24 @@
+# Add any directories, files, or patterns you don't want to be tracked by version control
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+# eclipse project file
+.settings/
+.classpath
+.project
+
+# JAVA
+*.class
+#Jasper Reports
+*.jasper
+
+#Reports Temp
+/tagnos-back/tagnos-reports/temp/*
+
+*/out/artifacts/*
