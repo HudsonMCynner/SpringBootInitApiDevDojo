@@ -36,13 +36,8 @@ public class StudentEndPoint {
     }
 
     @PostMapping
-    @Transactional
+    @Transactional(rollbackOn = Exception.class)
     public ResponseEntity<?> save(@RequestBody Student student) {
-        studentDAO.save(student);
-        studentDAO.save(student);
-        if (true) {
-            throw new RuntimeException("Teste Transaction");
-        }
         return new ResponseEntity<>(studentDAO.save(student), HttpStatus.OK);
     }
 
