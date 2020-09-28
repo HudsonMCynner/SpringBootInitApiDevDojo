@@ -7,6 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.Transactional;
@@ -28,9 +31,9 @@ public class StudentEndPoint {
         return new ResponseEntity<>(studentDAO.findAll(pageable), HttpStatus.OK);
     }
 
-
     @GetMapping(path = "/{id}")
-    public ResponseEntity<?> getStudentById(@PathVariable Long id) {
+    public ResponseEntity<?> getStudentById(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
+        System.out.println(userDetails);
         verifyIfStudentExist(id);
         return new ResponseEntity<>(studentDAO.findById(id), HttpStatus.OK);
     }
@@ -42,6 +45,7 @@ public class StudentEndPoint {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         verifyIfStudentExist(id);
         studentDAO.deleteById(id);
