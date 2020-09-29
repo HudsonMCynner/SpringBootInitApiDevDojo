@@ -16,7 +16,7 @@ import javax.transaction.Transactional;
 import javax.validation.Valid;
 
 @RestController
-@RequestMapping("students")
+@RequestMapping("v1")
 public class StudentEndPoint {
 
     private final StudentRespository studentDAO;
@@ -26,40 +26,40 @@ public class StudentEndPoint {
         this.studentDAO = studentDAO;
     }
 
-    @GetMapping
+    @GetMapping(path = "protected/students")
     public ResponseEntity<?> listAll(Pageable pageable) {
         return new ResponseEntity<>(studentDAO.findAll(pageable), HttpStatus.OK);
     }
 
-    @GetMapping(path = "/{id}")
+    @GetMapping(path = "protected/students/{id}")
     public ResponseEntity<?> getStudentById(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
         System.out.println(userDetails);
         verifyIfStudentExist(id);
         return new ResponseEntity<>(studentDAO.findById(id), HttpStatus.OK);
     }
 
-    @PostMapping
+    @PostMapping(path = "admin/students")
     @Transactional(rollbackOn = Exception.class)
     public ResponseEntity<?> save(@Valid @RequestBody Student student) {
         return new ResponseEntity<>(studentDAO.save(student), HttpStatus.OK);
     }
 
-    @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping(path = "admin/students/{id}")
+//    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         verifyIfStudentExist(id);
         studentDAO.deleteById(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PutMapping
+    @PutMapping(path = "admin/students")
     public ResponseEntity<?> update(@RequestBody Student student) {
         verifyIfStudentExist(student.getId());
         studentDAO.save(student);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @GetMapping("/findByName/{name}")
+    @GetMapping("protected/students/findByName/{name}")
     public ResponseEntity<?> findStudentsByName (@PathVariable String name) {
         return new ResponseEntity<>(studentDAO.findByNameIgnoreCaseContaining(name), HttpStatus.OK);
     }
